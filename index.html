@@ -1,578 +1,922 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>From My Heart</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet">
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Henry Mobile Bank</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --orange: #FF6B00;
+      --orange-light: #FF8C2A;
+      --orange-dark: #CC5500;
+      --orange-glow: rgba(255, 107, 0, 0.25);
+      --black: #0A0A0A;
+      --black-2: #141414;
+      --black-3: #1E1E1E;
+      --black-4: #2A2A2A;
+      --white: #FFFFFF;
+      --gray: #9A9A9A;
+      --gray-light: #C5C5C5;
+      --success: #22C55E;
+      --error: #EF4444;
+    }
 
-  body {
-    font-family: 'Lato', sans-serif;
-    min-height: 100vh;
-    overflow: hidden;
-    background: #0d0d1a;
-  }
+```
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-  /* ── PAGES ── */
-  .page {
-    position: fixed;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.8s ease;
-  }
-  .page.active {
-    opacity: 1;
-    pointer-events: all;
-  }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--black);
+  color: var(--white);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
 
-  /* ── PAGE 1 ── */
-  #page1 {
-    background: linear-gradient(135deg, #1a0533 0%, #0d0d2b 50%, #0a1a2e 100%);
-  }
-  #page1 .card {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.12);
-    backdrop-filter: blur(12px);
-    border-radius: 24px;
-    padding: 3rem 2.5rem;
-    text-align: center;
-    max-width: 420px;
-    width: 100%;
-    box-shadow: 0 0 60px rgba(180,100,255,0.15);
-    animation: floatCard 4s ease-in-out infinite;
-  }
-  @keyframes floatCard {
-    0%,100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
-  }
-  #page1 h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.6rem;
-    color: #f0e6ff;
-    line-height: 1.5;
-    margin-bottom: 1rem;
-  }
-  #page1 p {
-    color: #c9b8e8;
-    font-size: 1rem;
-    margin-bottom: 2.5rem;
-    font-style: italic;
-  }
-  .btn-row {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-  .btn-continue {
-    background: linear-gradient(135deg, #a855f7, #6366f1);
-    color: white;
-    border: none;
-    padding: 0.75rem 2rem;
-    border-radius: 50px;
-    font-size: 1rem;
-    cursor: pointer;
-    font-family: 'Lato', sans-serif;
-    transition: transform 0.2s, box-shadow 0.2s;
-    box-shadow: 0 4px 20px rgba(168,85,247,0.4);
-  }
-  .btn-continue:hover { transform: scale(1.05); box-shadow: 0 6px 28px rgba(168,85,247,0.6); }
-  .btn-notnow {
-    background: transparent;
-    color: #a08abf;
-    border: 1px solid #a08abf;
-    padding: 0.75rem 2rem;
-    border-radius: 50px;
-    font-size: 1rem;
-    cursor: pointer;
-    font-family: 'Lato', sans-serif;
-    transition: transform 0.2s;
-  }
-  .btn-notnow:hover { transform: scale(1.05); }
+body::before {
+  content: '';
+  position: fixed;
+  top: -200px; right: -200px;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(255,107,0,0.12) 0%, transparent 70%);
+  pointer-events: none; z-index: 0;
+}
+body::after {
+  content: '';
+  position: fixed;
+  bottom: -200px; left: -200px;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(255,107,0,0.08) 0%, transparent 70%);
+  pointer-events: none; z-index: 0;
+}
 
-  /* ── EMOJI OVERLAY ── */
-  #emojiOverlay {
-    position: fixed;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 999;
-    pointer-events: none;
-    opacity: 0;
-  }
-  #emojiOverlay .big-emoji {
-    font-size: 8rem;
-    animation: emojiBounce 0.5s ease;
-  }
-  @keyframes emojiBounce {
-    0% { transform: scale(0); }
-    60% { transform: scale(1.3); }
-    100% { transform: scale(1); }
-  }
+/* ── PHONE SHELL ── */
+.phone {
+  width: 390px;
+  height: 780px;
+  background: var(--black-2);
+  border-radius: 48px;
+  border: 1.5px solid var(--black-4);
+  box-shadow: 0 0 0 6px var(--black-3), 0 40px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.05);
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+}
 
-  /* ── PARTY POPPERS ── */
-  #confettiCanvas {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 998;
-  }
+/* ── STATUS BAR ── */
+.status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 28px 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--white);
+  flex-shrink: 0;
+}
+.status-bar .notch {
+  width: 100px; height: 28px;
+  background: var(--black);
+  border-radius: 20px;
+  position: absolute;
+  top: 0; left: 50%; transform: translateX(-50%);
+}
+.status-icons { display: flex; gap: 6px; align-items: center; }
+.status-icons svg { width: 16px; height: 16px; fill: var(--white); }
 
-  /* ── PAGE 2 ── */
-  #page2 {
-    background: linear-gradient(160deg, #0a0a1e 0%, #100a2e 60%, #0d1a1a 100%);
-    overflow-y: auto;
-    justify-content: flex-start;
-    padding-top: 3rem;
-    padding-bottom: 3rem;
-  }
-  #page2 .letter {
-    max-width: 520px;
-    width: 100%;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 20px;
-    padding: 2.5rem 2rem;
-    backdrop-filter: blur(8px);
-  }
-  #page2 .letter p {
-    color: #ddd0f5;
-    font-size: 0.97rem;
-    line-height: 1.85;
-    margin-bottom: 1.2rem;
-    font-weight: 300;
-  }
-  #page2 .letter p:last-of-type { margin-bottom: 2rem; }
+/* ── SCREENS ── */
+.screen {
+  display: none;
+  flex-direction: column;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.screen.active { display: flex; }
+.screen::-webkit-scrollbar { display: none; }
 
-  /* ── PAGE 3 ── */
-  #page3 {
-    background: linear-gradient(135deg, #0a0a1e 0%, #100a2e 100%);
-  }
-  #page3 .card {
-    max-width: 440px;
-    width: 100%;
-    text-align: center;
-    padding: 2rem;
-  }
-  #page3 p {
-    color: #c9b8e8;
-    font-size: 1.05rem;
-    line-height: 1.9;
-    margin-bottom: 0.8rem;
-    font-weight: 300;
-  }
-  #page3 .sign-off {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.1rem;
-    color: #e8d5ff;
-    margin: 1.5rem 0 2rem;
-  }
-  .arrow-hint {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    color: #a08abf;
-    font-size: 0.85rem;
-    margin-top: 0.8rem;
-    animation: arrowPulse 1.5s ease-in-out infinite;
-  }
-  @keyframes arrowPulse {
-    0%,100% { opacity: 0.5; transform: translateX(0); }
-    50% { opacity: 1; transform: translateX(6px); }
-  }
+/* ── SPLASH SCREEN ── */
+#splash {
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(160deg, var(--black) 0%, #1a0d00 100%);
+  gap: 20px;
+  animation: fadeIn 0.5s ease;
+}
+.logo-wrap {
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+.logo-icon {
+  width: 80px; height: 80px;
+  background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+  border-radius: 24px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-size: 32px; font-weight: 800; color: white;
+  box-shadow: 0 0 40px var(--orange-glow), 0 8px 24px rgba(255,107,0,0.4);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%,100% { box-shadow: 0 0 40px var(--orange-glow), 0 8px 24px rgba(255,107,0,0.4); }
+  50% { box-shadow: 0 0 60px rgba(255,107,0,0.5), 0 8px 32px rgba(255,107,0,0.6); }
+}
+.logo-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 28px; font-weight: 800;
+  letter-spacing: -0.5px; color: var(--white);
+}
+.logo-name span { color: var(--orange); }
+.logo-tagline {
+  font-size: 13px; color: var(--gray);
+  letter-spacing: 1px; text-transform: uppercase;
+}
+.splash-btns {
+  display: flex; flex-direction: column; gap: 12px;
+  width: 100%; padding: 0 28px; margin-top: 20px;
+}
+.btn-primary {
+  width: 100%; padding: 16px;
+  background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+  color: white; border: none; border-radius: 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s;
+  box-shadow: 0 4px 20px rgba(255,107,0,0.35);
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(255,107,0,0.5); }
+.btn-primary:active { transform: translateY(0); }
+.btn-secondary {
+  width: 100%; padding: 16px;
+  background: transparent;
+  color: var(--orange); border: 1.5px solid var(--orange);
+  border-radius: 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s;
+}
+.btn-secondary:hover { background: rgba(255,107,0,0.08); }
 
-  /* ── PAGE 4 ── NIGHT SKY ── */
-  #page4 {
-    background: radial-gradient(ellipse at 50% 0%, #0d0030 0%, #010014 60%, #000008 100%);
-    overflow: hidden;
-  }
-  #nightCanvas {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-  }
-  #page4 .center-text {
-    position: relative;
-    z-index: 2;
-    text-align: center;
-  }
-  #page4 h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(3rem, 10vw, 6rem);
-    color: transparent;
-    background: linear-gradient(135deg, #fff9e6, #ffd89b, #fffbe0, #fff);
-    -webkit-background-clip: text;
-    background-clip: text;
-    letter-spacing: 0.1em;
-    animation: glowText 3s ease-in-out infinite alternate;
-  }
-  @keyframes glowText {
-    from { filter: drop-shadow(0 0 12px rgba(255,220,100,0.5)) drop-shadow(0 0 30px rgba(255,180,50,0.2)); }
-    to   { filter: drop-shadow(0 0 35px rgba(255,220,100,1)) drop-shadow(0 0 70px rgba(255,180,50,0.5)); }
-  }
-  #page4 .subtitle {
-    color: rgba(200,180,255,0.55);
-    font-size: 1rem;
-    margin-top: 1rem;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    animation: subtitleFade 4s ease-in-out infinite alternate;
-  }
-  @keyframes subtitleFade {
-    from { opacity: 0.4; }
-    to   { opacity: 0.9; }
-  }
+/* ── AUTH SCREENS ── */
+.auth-screen {
+  padding: 28px 28px 32px;
+  flex: 1; display: flex; flex-direction: column;
+}
+.back-btn {
+  width: 40px; height: 40px;
+  background: var(--black-3);
+  border: none; border-radius: 12px;
+  color: var(--white); font-size: 18px;
+  cursor: pointer; display: flex;
+  align-items: center; justify-content: center;
+  margin-bottom: 28px; transition: background 0.2s;
+}
+.back-btn:hover { background: var(--black-4); }
+.auth-header { margin-bottom: 32px; }
+.auth-header h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 26px; font-weight: 800;
+  margin-bottom: 8px; line-height: 1.2;
+}
+.auth-header h2 span { color: var(--orange); }
+.auth-header p { font-size: 14px; color: var(--gray); line-height: 1.5; }
 
-  /* ── SHARED BUTTONS ── */
-  .btn-next {
-    background: linear-gradient(135deg, #a855f7, #6366f1);
-    color: white;
-    border: none;
-    padding: 0.75rem 2.2rem;
-    border-radius: 50px;
-    font-size: 1rem;
-    cursor: pointer;
-    font-family: 'Lato', sans-serif;
-    transition: transform 0.2s, box-shadow 0.2s;
-    box-shadow: 0 4px 20px rgba(168,85,247,0.4);
-    margin-top: 0.5rem;
-  }
-  .btn-next:hover { transform: scale(1.05); box-shadow: 0 6px 28px rgba(168,85,247,0.6); }
+.form-group { margin-bottom: 18px; }
+.form-label {
+  display: block; font-size: 13px;
+  font-weight: 500; color: var(--gray-light);
+  margin-bottom: 8px;
+}
+.input-wrap {
+  position: relative; display: flex; align-items: center;
+}
+.input-prefix {
+  position: absolute; left: 14px;
+  font-size: 14px; font-weight: 600;
+  color: var(--orange);
+}
+.form-input {
+  width: 100%; padding: 14px 16px;
+  background: var(--black-3);
+  border: 1.5px solid var(--black-4);
+  border-radius: 14px; color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px; transition: all 0.2s;
+  outline: none;
+}
+.form-input.has-prefix { padding-left: 44px; }
+.form-input::placeholder { color: var(--gray); }
+.form-input:focus {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px var(--orange-glow);
+}
+.eye-btn {
+  position: absolute; right: 14px;
+  background: none; border: none;
+  color: var(--gray); cursor: pointer;
+  font-size: 18px; padding: 4px;
+}
 
-  /* ── STARS (page 1-3) ── */
-  .star-bg {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-  }
-  .star-bg span {
-    position: absolute;
-    border-radius: 50%;
-    background: white;
-    animation: twinkle var(--d) ease-in-out infinite;
-    opacity: 0;
-  }
-  @keyframes twinkle {
-    0%,100% { opacity: 0; }
-    50% { opacity: var(--o); }
-  }
+.forgot-link {
+  text-align: right; margin-top: -10px; margin-bottom: 18px;
+}
+.forgot-link a {
+  font-size: 13px; color: var(--orange);
+  text-decoration: none; font-weight: 500;
+}
 
-  /* ── TRANSITION ── */
-  .fade-out { animation: fadeOut 0.5s forwards; }
-  @keyframes fadeOut { to { opacity: 0; } }
-</style>
+.divider {
+  display: flex; align-items: center;
+  gap: 12px; margin: 20px 0;
+}
+.divider-line { flex: 1; height: 1px; background: var(--black-4); }
+.divider span { font-size: 12px; color: var(--gray); }
+
+.social-btns { display: flex; gap: 12px; }
+.social-btn {
+  flex: 1; padding: 13px;
+  background: var(--black-3); border: 1.5px solid var(--black-4);
+  border-radius: 14px; color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 500;
+  cursor: pointer; display: flex;
+  align-items: center; justify-content: center;
+  gap: 8px; transition: all 0.2s;
+}
+.social-btn:hover { border-color: var(--orange); }
+
+.auth-footer {
+  margin-top: auto; text-align: center;
+  font-size: 13px; color: var(--gray);
+}
+.auth-footer a {
+  color: var(--orange); text-decoration: none; font-weight: 600;
+  cursor: pointer;
+}
+
+.error-msg {
+  font-size: 12px; color: var(--error);
+  margin-top: 6px; display: none;
+}
+
+/* ── SIGNUP EXTRAS ── */
+.name-row { display: flex; gap: 12px; }
+.name-row .form-group { flex: 1; }
+
+.pin-inputs {
+  display: flex; gap: 12px; justify-content: center;
+  margin: 8px 0;
+}
+.pin-input {
+  width: 52px; height: 56px;
+  background: var(--black-3); border: 1.5px solid var(--black-4);
+  border-radius: 14px; color: var(--white);
+  font-size: 22px; font-weight: 700;
+  text-align: center; outline: none;
+  font-family: 'Syne', sans-serif;
+  transition: all 0.2s;
+}
+.pin-input:focus {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px var(--orange-glow);
+}
+
+/* ── DASHBOARD ── */
+#dashboard {
+  background: var(--black-2);
+  animation: fadeIn 0.4s ease;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+.dash-header {
+  background: linear-gradient(135deg, #1a0900 0%, #0d0400 100%);
+  padding: 20px 24px 28px;
+  position: relative; overflow: hidden;
+}
+.dash-header::after {
+  content: '';
+  position: absolute; top: -60px; right: -60px;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(255,107,0,0.2) 0%, transparent 70%);
+  pointer-events: none;
+}
+.dash-top {
+  display: flex; justify-content: space-between;
+  align-items: center; margin-bottom: 20px;
+}
+.user-greeting { display: flex; align-items: center; gap: 10px; }
+.user-avatar {
+  width: 40px; height: 40px;
+  background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-size: 16px; font-weight: 800; color: white;
+}
+.user-greeting-text p:first-child {
+  font-size: 12px; color: var(--gray); margin-bottom: 2px;
+}
+.user-greeting-text p:last-child {
+  font-size: 15px; font-weight: 600; color: var(--white);
+}
+.notif-btn {
+  width: 40px; height: 40px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px; color: var(--white);
+  font-size: 18px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.balance-card {
+  background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+  border-radius: 20px; padding: 20px;
+  position: relative; overflow: hidden;
+  box-shadow: 0 8px 32px rgba(255,107,0,0.35);
+}
+.balance-card::before {
+  content: ''; position: absolute;
+  top: -40px; right: -40px;
+  width: 140px; height: 140px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 50%;
+}
+.balance-card::after {
+  content: ''; position: absolute;
+  bottom: -50px; left: 20px;
+  width: 100px; height: 100px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 50%;
+}
+.balance-label {
+  font-size: 12px; color: rgba(255,255,255,0.75);
+  text-transform: uppercase; letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+.balance-amount {
+  font-family: 'Syne', sans-serif;
+  font-size: 32px; font-weight: 800;
+  color: white; margin-bottom: 16px;
+  position: relative; z-index: 1;
+}
+.balance-amount span { font-size: 18px; margin-right: 2px; }
+.balance-row {
+  display: flex; justify-content: space-between;
+  align-items: center; position: relative; z-index: 1;
+}
+.acct-num { font-size: 13px; color: rgba(255,255,255,0.8); letter-spacing: 1px; }
+.eye-toggle {
+  background: rgba(255,255,255,0.2); border: none;
+  border-radius: 8px; color: white;
+  padding: 6px 10px; font-size: 14px;
+  cursor: pointer;
+}
+
+/* Quick Actions */
+.quick-actions {
+  padding: 24px 24px 0;
+}
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 15px; font-weight: 700;
+  color: var(--white); margin-bottom: 16px;
+}
+.actions-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.action-item {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 8px;
+  cursor: pointer;
+}
+.action-icon {
+  width: 52px; height: 52px;
+  background: var(--black-3);
+  border: 1px solid var(--black-4);
+  border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; transition: all 0.2s;
+}
+.action-item:hover .action-icon {
+  background: rgba(255,107,0,0.1);
+  border-color: var(--orange);
+}
+.action-label {
+  font-size: 11px; color: var(--gray-light);
+  text-align: center; font-weight: 500;
+}
+
+/* Promo Banner */
+.promo-banner {
+  margin: 20px 24px 0;
+  background: linear-gradient(135deg, #1a0900, #2a1000);
+  border: 1px solid rgba(255,107,0,0.2);
+  border-radius: 16px; padding: 16px;
+  display: flex; align-items: center;
+  justify-content: space-between;
+}
+.promo-text p:first-child {
+  font-size: 13px; color: var(--orange);
+  font-weight: 600; margin-bottom: 4px;
+}
+.promo-text p:last-child {
+  font-size: 12px; color: var(--gray);
+}
+.promo-emoji { font-size: 32px; }
+
+/* Transactions */
+.transactions { padding: 20px 24px 24px; }
+.section-header {
+  display: flex; justify-content: space-between;
+  align-items: center; margin-bottom: 16px;
+}
+.see-all {
+  font-size: 13px; color: var(--orange);
+  font-weight: 500; cursor: pointer;
+}
+.tx-item {
+  display: flex; align-items: center;
+  gap: 14px; padding: 14px 0;
+  border-bottom: 1px solid var(--black-4);
+}
+.tx-item:last-child { border-bottom: none; }
+.tx-icon {
+  width: 44px; height: 44px;
+  background: var(--black-3); border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.tx-info { flex: 1; }
+.tx-info p:first-child { font-size: 14px; font-weight: 500; margin-bottom: 3px; }
+.tx-info p:last-child { font-size: 12px; color: var(--gray); }
+.tx-amount { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; }
+.tx-amount.credit { color: var(--success); }
+.tx-amount.debit { color: var(--error); }
+
+/* Bottom Nav */
+.bottom-nav {
+  display: flex; background: var(--black-2);
+  border-top: 1px solid var(--black-4);
+  padding: 12px 0 20px;
+  flex-shrink: 0;
+}
+.nav-item {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; gap: 4px;
+  cursor: pointer; padding: 6px;
+}
+.nav-icon { font-size: 22px; }
+.nav-label { font-size: 10px; color: var(--gray); font-weight: 500; }
+.nav-item.active .nav-label { color: var(--orange); }
+.nav-item.active .nav-icon { filter: drop-shadow(0 0 6px rgba(255,107,0,0.8)); }
+
+/* Toast */
+.toast {
+  position: absolute; top: 80px; left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  background: var(--black-3); border: 1px solid var(--black-4);
+  border-radius: 12px; padding: 10px 18px;
+  font-size: 13px; white-space: nowrap;
+  opacity: 0; transition: all 0.3s;
+  z-index: 100; pointer-events: none;
+}
+.toast.show {
+  opacity: 1; transform: translateX(-50%) translateY(0);
+}
+.toast.success { border-color: var(--success); color: var(--success); }
+.toast.error { border-color: var(--error); color: var(--error); }
+
+/* Password strength */
+.strength-bar {
+  display: flex; gap: 4px; margin-top: 8px;
+}
+.strength-seg {
+  flex: 1; height: 3px; border-radius: 2px;
+  background: var(--black-4); transition: background 0.3s;
+}
+.strength-seg.weak { background: var(--error); }
+.strength-seg.medium { background: #F59E0B; }
+.strength-seg.strong { background: var(--success); }
+
+select.form-input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239A9A9A' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+  cursor: pointer;
+}
+select.form-input option { background: var(--black-3); }
+```
+
+  </style>
 </head>
 <body>
 
-<!-- Background stars -->
-<div class="star-bg" id="bgStars"></div>
+<div class="phone">
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <div class="notch"></div>
+    <span>9:41</span>
+    <div class="status-icons">
+      <svg viewBox="0 0 24 24"><path d="M1 1l22 22M16.72 11.06A10.94 10.94 0 0119 12.55M5 12.55a10.94 10.94 0 015.17-2.39M10.71 5.05A16 16 0 0122.56 9M1.42 9a15.91 15.91 0 014.7-2.88M8.53 16.11a6 6 0 016.95 0M12 20h.01" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+      <svg viewBox="0 0 24 24"><rect x="2" y="7" width="16" height="11" rx="2" ry="2"/><path d="M22 11v3"/></svg>
+    </div>
+  </div>
 
-<!-- Emoji Overlay -->
-<div id="emojiOverlay"><span class="big-emoji" id="bigEmoji"></span></div>
+  <!-- Toast -->
 
-<!-- Confetti Canvas -->
-<canvas id="confettiCanvas"></canvas>
+  <div class="toast" id="toast"></div>
 
-<!-- ══ PAGE 1 ══ -->
-<div class="page active" id="page1">
-  <div class="card">
-    <h1>Do you want to read something honest from me?</h1>
-    <p>This wasn't planned… but it came from my heart.</p>
-    <div class="btn-row">
-      <button class="btn-continue" onclick="clickContinue()">Continue</button>
-      <button class="btn-notnow" onclick="clickNotNow()">Not now</button>
+  <!-- ── SPLASH ── -->
+
+  <div class="screen active" id="splash">
+    <div class="logo-wrap">
+      <div class="logo-icon">H</div>
+      <div class="logo-name"><span>Henry</span> Bank</div>
+      <div class="logo-tagline">Smart · Fast · Secure</div>
+    </div>
+    <div class="splash-btns">
+      <button class="btn-primary" onclick="showScreen('login')">Login to Account</button>
+      <button class="btn-secondary" onclick="showScreen('signup')">Create New Account</button>
+    </div>
+    <p style="text-align:center;font-size:11px;color:var(--gray);margin-top:20px;">© 2024 Henry Mobile Bank. All rights reserved.</p>
+  </div>
+
+  <!-- ── LOGIN ── -->
+
+  <div class="screen" id="login">
+    <div class="auth-screen">
+      <button class="back-btn" onclick="showScreen('splash')">←</button>
+      <div class="auth-header">
+        <h2>Welcome <span>Back!</span></h2>
+        <p>Enter your phone number and password to access your account.</p>
+      </div>
+
+```
+  <div class="form-group">
+    <label class="form-label">Phone Number</label>
+    <div class="input-wrap">
+      <span class="input-prefix">+234</span>
+      <input type="tel" class="form-input has-prefix" id="login-phone" placeholder="080 0000 0000" maxlength="11"/>
+    </div>
+    <div class="error-msg" id="login-phone-err">Please enter a valid phone number</div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Password</label>
+    <div class="input-wrap">
+      <input type="password" class="form-input" id="login-pass" placeholder="Enter your password"/>
+      <button class="eye-btn" onclick="togglePass('login-pass', this)">👁</button>
+    </div>
+    <div class="error-msg" id="login-pass-err">Password is required</div>
+  </div>
+
+  <div class="forgot-link"><a href="#">Forgot Password?</a></div>
+
+  <button class="btn-primary" onclick="handleLogin()">Login</button>
+
+  <div class="divider">
+    <div class="divider-line"></div>
+    <span>or continue with</span>
+    <div class="divider-line"></div>
+  </div>
+
+  <div class="social-btns">
+    <button class="social-btn">
+      <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+      Google
+    </button>
+    <button class="social-btn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.7 9.05 7.42c1.37.07 2.33.74 3.12.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.57 3.97zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+      Apple
+    </button>
+  </div>
+
+  <div class="auth-footer" style="margin-top:24px;">
+    Don't have an account? <a onclick="showScreen('signup')">Sign Up</a>
+  </div>
+</div>
+```
+
+  </div>
+
+  <!-- ── SIGNUP ── -->
+
+  <div class="screen" id="signup">
+    <div class="auth-screen">
+      <button class="back-btn" onclick="showScreen('splash')">←</button>
+      <div class="auth-header">
+        <h2>Create <span>Account</span></h2>
+        <p>Fill in your details to get started with Henry Bank.</p>
+      </div>
+
+```
+  <div class="name-row">
+    <div class="form-group">
+      <label class="form-label">First Name</label>
+      <input type="text" class="form-input" id="signup-fname" placeholder="John"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Last Name</label>
+      <input type="text" class="form-input" id="signup-lname" placeholder="Doe"/>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Phone Number</label>
+    <div class="input-wrap">
+      <span class="input-prefix">+234</span>
+      <input type="tel" class="form-input has-prefix" id="signup-phone" placeholder="080 0000 0000" maxlength="11"/>
+    </div>
+    <div class="error-msg" id="signup-phone-err">Please enter a valid phone number</div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Email Address</label>
+    <input type="email" class="form-input" id="signup-email" placeholder="john@email.com"/>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Password</label>
+    <div class="input-wrap">
+      <input type="password" class="form-input" id="signup-pass" placeholder="Create a strong password" oninput="checkStrength(this.value)"/>
+      <button class="eye-btn" onclick="togglePass('signup-pass', this)">👁</button>
+    </div>
+    <div class="strength-bar" id="strength-bar">
+      <div class="strength-seg" id="seg1"></div>
+      <div class="strength-seg" id="seg2"></div>
+      <div class="strength-seg" id="seg3"></div>
+      <div class="strength-seg" id="seg4"></div>
+    </div>
+    <div class="error-msg" id="signup-pass-err">Password must be at least 6 characters</div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Transaction PIN</label>
+    <div class="pin-inputs">
+      <input type="password" class="pin-input" maxlength="1" oninput="pinNext(this, 1)"/>
+      <input type="password" class="pin-input" maxlength="1" oninput="pinNext(this, 2)"/>
+      <input type="password" class="pin-input" maxlength="1" oninput="pinNext(this, 3)"/>
+      <input type="password" class="pin-input" maxlength="1" oninput="pinNext(this, 4)"/>
+    </div>
+    <p style="font-size:11px;color:var(--gray);text-align:center;margin-top:6px;">4-digit PIN for transactions</p>
+  </div>
+
+  <button class="btn-primary" onclick="handleSignup()">Create Account</button>
+
+  <div class="auth-footer" style="margin-top:16px;">
+    Already have an account? <a onclick="showScreen('login')">Login</a>
+  </div>
+</div>
+```
+
+  </div>
+
+  <!-- ── DASHBOARD ── -->
+
+  <div class="screen" id="dashboard">
+    <div class="dash-header">
+      <div class="dash-top">
+        <div class="user-greeting">
+          <div class="user-avatar" id="dash-avatar">J</div>
+          <div class="user-greeting-text">
+            <p>Good morning,</p>
+            <p id="dash-name">John Doe</p>
+          </div>
+        </div>
+        <button class="notif-btn">🔔</button>
+      </div>
+      <div class="balance-card">
+        <div class="balance-label">Total Balance</div>
+        <div class="balance-amount" id="dash-balance"><span>₦</span>42,500.00</div>
+        <div class="balance-row">
+          <div class="acct-num" id="dash-acct">**** **** 7823</div>
+          <button class="eye-toggle" onclick="toggleBalance()">👁</button>
+        </div>
+      </div>
+    </div>
+
+```
+<div class="quick-actions">
+  <div class="section-title">Quick Actions</div>
+  <div class="actions-grid">
+    <div class="action-item" onclick="showToast('Transfer coming soon','success')">
+      <div class="action-icon">💸</div>
+      <div class="action-label">Transfer</div>
+    </div>
+    <div class="action-item" onclick="showToast('Airtime coming soon','success')">
+      <div class="action-icon">📱</div>
+      <div class="action-label">Airtime</div>
+    </div>
+    <div class="action-item" onclick="showToast('Bill payment coming soon','success')">
+      <div class="action-icon">⚡</div>
+      <div class="action-label">Bill Pay</div>
+    </div>
+    <div class="action-item" onclick="showToast('Coming soon','success')">
+      <div class="action-icon">🏦</div>
+      <div class="action-label">Savings</div>
+    </div>
+    <div class="action-item" onclick="showToast('Coming soon','success')">
+      <div class="action-icon">📊</div>
+      <div class="action-label">Invest</div>
+    </div>
+    <div class="action-item" onclick="showToast('Coming soon','success')">
+      <div class="action-icon">🚀</div>
+      <div class="action-label">Loans</div>
+    </div>
+    <div class="action-item" onclick="showToast('QR Ready','success')">
+      <div class="action-icon">📲</div>
+      <div class="action-label">Pay QR</div>
+    </div>
+    <div class="action-item" onclick="showToast('More coming soon','success')">
+      <div class="action-icon">⋯</div>
+      <div class="action-label">More</div>
     </div>
   </div>
 </div>
 
-<!-- ══ PAGE 2 ══ -->
-<div class="page" id="page2">
-  <div class="letter">
-    <p>I was busy all night and this came to my mind… I really don't even know why I'm doing this lol, but I guess some things just don't leave your heart no matter how hard you try to ignore them.</p>
-    <p>I just want to say I'm sorry. Not just in words, but in the way I've made you feel at times. You didn't deserve the stress, the confusion, or the moments where I wasn't the man you needed me to be. I know I can be stupid sometimes lol, but that doesn't change how real you are to me.</p>
-    <p>You're honestly one of the most amazing people I've ever met. The way you care, the way you love, the way you stay strong even when things aren't easy… it's rare. And I don't think I appreciated that enough when I had the chance. Being with you gave me memories I'll always carry with me — the kind that don't fade no matter what happens.</p>
-    <p>I was lucky to have you, truly. And even now, I'm still grateful for everything we shared — the laughter, the little moments, even the tough times that somehow still meant something because it was with you.</p>
-    <p>I don't know what the future holds, and I won't force anything. But I just hope, somehow, we can find our way again.</p>
-    <div style="text-align:center;">
-      <button class="btn-next" onclick="goToPage('page3')">Continue →</button>
+<div class="promo-banner">
+  <div class="promo-text">
+    <p>🎉 Refer & Earn</p>
+    <p>Invite friends, earn ₦500 each</p>
+  </div>
+  <div class="promo-emoji">💰</div>
+</div>
+
+<div class="transactions">
+  <div class="section-header">
+    <div class="section-title">Recent Transactions</div>
+    <div class="see-all">See all</div>
+  </div>
+  <div class="tx-item">
+    <div class="tx-icon">📥</div>
+    <div class="tx-info">
+      <p>Received from Peter A.</p>
+      <p>Today · 10:42 AM</p>
     </div>
+    <div class="tx-amount credit">+₦10,000</div>
+  </div>
+  <div class="tx-item">
+    <div class="tx-icon">⚡</div>
+    <div class="tx-info">
+      <p>EKEDC Electricity</p>
+      <p>Today · 08:15 AM</p>
+    </div>
+    <div class="tx-amount debit">-₦3,500</div>
+  </div>
+  <div class="tx-item">
+    <div class="tx-icon">📱</div>
+    <div class="tx-info">
+      <p>MTN Airtime</p>
+      <p>Yesterday · 6:30 PM</p>
+    </div>
+    <div class="tx-amount debit">-₦1,000</div>
+  </div>
+  <div class="tx-item">
+    <div class="tx-icon">📥</div>
+    <div class="tx-info">
+      <p>Salary · Employer</p>
+      <p>Apr 1 · 09:00 AM</p>
+    </div>
+    <div class="tx-amount credit">+₦150,000</div>
   </div>
 </div>
 
-<!-- ══ PAGE 3 ══ -->
-<div class="page" id="page3">
-  <div class="card">
-    <p>I don't know what happens after this…<br>But I'm grateful I got the chance to say how I truly feel.<br>That's all I wanted to say.</p>
-    <p>You don't have to reply right away… or even at all.<br>I just needed to get this off my chest.</p>
-    <p class="sign-off">Take care of yourself 🤍</p>
-    <button class="btn-next" onclick="goToPage('page4')">End</button>
-    <div class="arrow-hint">👉 Click End 🤗</div>
+<div class="bottom-nav">
+  <div class="nav-item active">
+    <div class="nav-icon">🏠</div>
+    <div class="nav-label" style="color:var(--orange)">Home</div>
+  </div>
+  <div class="nav-item" onclick="showToast('Cards coming soon','success')">
+    <div class="nav-icon">💳</div>
+    <div class="nav-label">Cards</div>
+  </div>
+  <div class="nav-item" onclick="showToast('History coming soon','success')">
+    <div class="nav-icon">📋</div>
+    <div class="nav-label">History</div>
+  </div>
+  <div class="nav-item" onclick="handleLogout()">
+    <div class="nav-icon">👤</div>
+    <div class="nav-label">Profile</div>
   </div>
 </div>
+```
 
-<!-- ══ PAGE 4 ══ -->
-<div class="page" id="page4">
-  <canvas id="nightCanvas"></canvas>
-  <div class="center-text">
-    <h1>Arigatō</h1>
-    <p class="subtitle">ありがとう</p>
   </div>
 </div>
 
 <script>
-  /* ── Background tiny stars ── */
-  const bgStars = document.getElementById('bgStars');
-  for (let i = 0; i < 80; i++) {
-    const s = document.createElement('span');
-    const size = Math.random() * 2 + 1;
-    s.style.cssText = `
-      width:${size}px;height:${size}px;
-      top:${Math.random()*100}%;left:${Math.random()*100}%;
-      --d:${2+Math.random()*4}s;--o:${0.3+Math.random()*0.7};
-      animation-delay:${Math.random()*4}s;
-    `;
-    bgStars.appendChild(s);
-  }
+  let balanceVisible = true;
+  const realBalance = '₦42,500.00';
 
-  /* ── Page transitions ── */
-  function goToPage(id) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
-    if (id === 'page4') startNightSky();
   }
 
-  /* ── Continue button ── */
-  function clickContinue() {
-    showEmoji('🥰');
-    launchConfetti();
-    setTimeout(() => goToPage('page2'), 2200);
+  function showToast(msg, type='') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast ' + type + ' show';
+    setTimeout(() => t.classList.remove('show'), 2500);
   }
 
-  /* ── Not Now button ── */
-  function clickNotNow() {
-    showEmoji('😔');
+  function togglePass(id, btn) {
+    const inp = document.getElementById(id);
+    if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
+    else { inp.type = 'password'; btn.textContent = '👁'; }
   }
 
-  /* ── Emoji overlay ── */
-  function showEmoji(e) {
-    const overlay = document.getElementById('emojiOverlay');
-    const emoji = document.getElementById('bigEmoji');
-    emoji.textContent = e;
-    overlay.style.opacity = '1';
+  function toggleBalance() {
+    const el = document.getElementById('dash-balance');
+    if (balanceVisible) { el.innerHTML = '<span>₦</span>••••••'; }
+    else { el.innerHTML = '<span>₦</span>' + realBalance.replace('₦',''); }
+    balanceVisible = !balanceVisible;
+  }
+
+  function checkStrength(val) {
+    const segs = [document.getElementById('seg1'), document.getElementById('seg2'),
+                  document.getElementById('seg3'), document.getElementById('seg4')];
+    segs.forEach(s => s.className = 'strength-seg');
+    const score = [val.length >= 6, /[A-Z]/.test(val), /[0-9]/.test(val), /[^A-Za-z0-9]/.test(val)]
+                  .filter(Boolean).length;
+    const cls = score <= 1 ? 'weak' : score <= 3 ? 'medium' : 'strong';
+    for (let i = 0; i < score; i++) segs[i].classList.add(cls);
+  }
+
+  function pinNext(el, idx) {
+    if (el.value.length === 1 && idx < 4) {
+      document.querySelectorAll('.pin-input')[idx].focus();
+    }
+  }
+
+  function handleLogin() {
+    const phone = document.getElementById('login-phone').value.trim();
+    const pass  = document.getElementById('login-pass').value.trim();
+    let ok = true;
+
+    document.getElementById('login-phone-err').style.display = 'none';
+    document.getElementById('login-pass-err').style.display  = 'none';
+
+    if (phone.length < 10) {
+      document.getElementById('login-phone-err').style.display = 'block'; ok = false;
+    }
+    if (!pass) {
+      document.getElementById('login-pass-err').style.display = 'block'; ok = false;
+    }
+    if (!ok) return;
+
+    showToast('Logging in…');
     setTimeout(() => {
-      overlay.style.transition = 'opacity 0.6s';
-      overlay.style.opacity = '0';
+      document.getElementById('dash-name').textContent = 'Henry User';
+      document.getElementById('dash-avatar').textContent = 'H';
+      showScreen('dashboard');
+      showToast('Welcome back! 👋', 'success');
+    }, 1200);
+  }
+
+  function handleSignup() {
+    const fname = document.getElementById('signup-fname').value.trim();
+    const phone = document.getElementById('signup-phone').value.trim();
+    const pass  = document.getElementById('signup-pass').value.trim();
+    let ok = true;
+
+    document.getElementById('signup-phone-err').style.display = 'none';
+    document.getElementById('signup-pass-err').style.display  = 'none';
+
+    if (phone.length < 10) {
+      document.getElementById('signup-phone-err').style.display = 'block'; ok = false;
+    }
+    if (pass.length < 6) {
+      document.getElementById('signup-pass-err').style.display = 'block'; ok = false;
+    }
+    if (!ok) return;
+
+    const name = fname || 'User';
+    showToast('Creating account…');
+    setTimeout(() => {
+      document.getElementById('dash-name').textContent = name + ' (New)';
+      document.getElementById('dash-avatar').textContent = name.charAt(0).toUpperCase();
+      showScreen('dashboard');
+      showToast('Account created! 🎉', 'success');
     }, 1400);
   }
 
-  /* ── Confetti ── */
-  const confCanvas = document.getElementById('confettiCanvas');
-  const confCtx = confCanvas.getContext('2d');
-  let confParticles = [];
-  let confRunning = false;
-
-  function launchConfetti() {
-    confCanvas.width = window.innerWidth;
-    confCanvas.height = window.innerHeight;
-    confParticles = [];
-    const colors = ['#a855f7','#6366f1','#ec4899','#f59e0b','#10b981','#ff6b6b','#fff'];
-    for (let i = 0; i < 160; i++) {
-      confParticles.push({
-        x: Math.random() * confCanvas.width,
-        y: -20,
-        r: Math.random() * 7 + 3,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        vx: (Math.random() - 0.5) * 4,
-        vy: Math.random() * 4 + 2,
-        alpha: 1,
-        shape: Math.random() > 0.5 ? 'rect' : 'circle'
-      });
+  function handleLogout() {
+    if (confirm('Log out of Henry Bank?')) {
+      showScreen('splash');
+      showToast('Logged out successfully');
     }
-    if (!confRunning) { confRunning = true; animateConfetti(); }
-  }
-
-  function animateConfetti() {
-    confCtx.clearRect(0, 0, confCanvas.width, confCanvas.height);
-    confParticles.forEach(p => {
-      confCtx.globalAlpha = p.alpha;
-      confCtx.fillStyle = p.color;
-      if (p.shape === 'circle') {
-        confCtx.beginPath();
-        confCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        confCtx.fill();
-      } else {
-        confCtx.fillRect(p.x, p.y, p.r * 2, p.r);
-      }
-      p.x += p.vx;
-      p.y += p.vy;
-      p.vy += 0.08;
-      p.alpha -= 0.006;
-    });
-    confParticles = confParticles.filter(p => p.alpha > 0);
-    if (confParticles.length > 0) requestAnimationFrame(animateConfetti);
-    else confRunning = false;
-  }
-
-  /* ── Night Sky ── */
-  function startNightSky() {
-    bgStars.style.display = 'none';
-    const canvas = document.getElementById('nightCanvas');
-    const ctx = canvas.getContext('2d');
-
-    function resize() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    resize();
-    window.addEventListener('resize', resize);
-
-    // Static twinkling stars (many layers of size)
-    const stars = Array.from({length: 320}, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      r: Math.random() * 1.8 + 0.2,
-      alpha: Math.random(),
-      delta: (Math.random() * 0.015 + 0.003) * (Math.random() > 0.5 ? 1 : -1),
-      color: Math.random() > 0.85
-        ? `hsl(${200 + Math.random()*60},80%,90%)`  // blue-white
-        : Math.random() > 0.7
-          ? `hsl(${30 + Math.random()*20},90%,90%)` // warm gold
-          : '#ffffff'
-    }));
-
-    // Shooting stars pool
-    let shooters = [];
-
-    function spawnShooter() {
-      const startX = Math.random() * canvas.width * 1.2;
-      const startY = Math.random() * canvas.height * 0.45;
-      shooters.push({
-        x: startX,
-        y: startY,
-        len: Math.random() * 180 + 80,
-        speed: Math.random() * 12 + 7,
-        alpha: 1,
-        width: Math.random() * 1.5 + 0.8,
-        angle: Math.PI / 5 + (Math.random() - 0.5) * 0.3,
-        trail: []
-      });
-    }
-
-    // Spawn shooting stars at varied intervals
-    spawnShooter();
-    setInterval(spawnShooter, 900);
-    setTimeout(spawnShooter, 300);
-    setTimeout(spawnShooter, 600);
-
-    // Moon glow
-    function drawMoon() {
-      const mx = canvas.width * 0.82, my = canvas.height * 0.14, mr = 38;
-      // Outer glow
-      const glow = ctx.createRadialGradient(mx, my, mr * 0.6, mx, my, mr * 3.5);
-      glow.addColorStop(0, 'rgba(230,220,180,0.18)');
-      glow.addColorStop(1, 'rgba(180,160,120,0)');
-      ctx.beginPath();
-      ctx.arc(mx, my, mr * 3.5, 0, Math.PI * 2);
-      ctx.fillStyle = glow;
-      ctx.fill();
-      // Moon body
-      const moonGrad = ctx.createRadialGradient(mx - 8, my - 8, 2, mx, my, mr);
-      moonGrad.addColorStop(0, '#fffde8');
-      moonGrad.addColorStop(0.5, '#ffefc0');
-      moonGrad.addColorStop(1, '#e8d48a');
-      ctx.beginPath();
-      ctx.arc(mx, my, mr, 0, Math.PI * 2);
-      ctx.fillStyle = moonGrad;
-      ctx.fill();
-    }
-
-    function draw() {
-      // Dark sky gradient background
-      const skyGrad = ctx.createRadialGradient(
-        canvas.width * 0.5, 0, 0,
-        canvas.width * 0.5, canvas.height * 0.5, canvas.height
-      );
-      skyGrad.addColorStop(0, '#0d0030');
-      skyGrad.addColorStop(0.5, '#010014');
-      skyGrad.addColorStop(1, '#000008');
-      ctx.fillStyle = skyGrad;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      drawMoon();
-
-      // Twinkling stars
-      stars.forEach(s => {
-        s.alpha += s.delta;
-        if (s.alpha >= 1)   { s.alpha = 1;   s.delta *= -1; }
-        if (s.alpha <= 0.05){ s.alpha = 0.05; s.delta *= -1; }
-        ctx.globalAlpha = s.alpha;
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-        ctx.fillStyle = s.color;
-        ctx.fill();
-        // tiny sparkle cross on bigger stars
-        if (s.r > 1.3 && s.alpha > 0.7) {
-          ctx.globalAlpha = s.alpha * 0.4;
-          ctx.strokeStyle = s.color;
-          ctx.lineWidth = 0.5;
-          ctx.beginPath();
-          ctx.moveTo(s.x - s.r * 2.5, s.y); ctx.lineTo(s.x + s.r * 2.5, s.y);
-          ctx.moveTo(s.x, s.y - s.r * 2.5); ctx.lineTo(s.x, s.y + s.r * 2.5);
-          ctx.stroke();
-        }
-      });
-
-      ctx.globalAlpha = 1;
-
-      // Shooting stars
-      shooters.forEach(sh => {
-        const tailX = sh.x - Math.cos(sh.angle) * sh.len;
-        const tailY = sh.y - Math.sin(sh.angle) * sh.len;
-        const grad = ctx.createLinearGradient(sh.x, sh.y, tailX, tailY);
-        grad.addColorStop(0, `rgba(255,255,230,${sh.alpha})`);
-        grad.addColorStop(0.3, `rgba(200,200,255,${sh.alpha * 0.6})`);
-        grad.addColorStop(1, 'rgba(180,180,255,0)');
-        ctx.beginPath();
-        ctx.moveTo(sh.x, sh.y);
-        ctx.lineTo(tailX, tailY);
-        ctx.strokeStyle = grad;
-        ctx.lineWidth = sh.width;
-        ctx.lineCap = 'round';
-        ctx.stroke();
-
-        // Head glow
-        const headGlow = ctx.createRadialGradient(sh.x, sh.y, 0, sh.x, sh.y, sh.width * 4);
-        headGlow.addColorStop(0, `rgba(255,255,220,${sh.alpha})`);
-        headGlow.addColorStop(1, 'rgba(255,255,220,0)');
-        ctx.beginPath();
-        ctx.arc(sh.x, sh.y, sh.width * 4, 0, Math.PI * 2);
-        ctx.fillStyle = headGlow;
-        ctx.fill();
-
-        sh.x += Math.cos(sh.angle) * sh.speed;
-        sh.y += Math.sin(sh.angle) * sh.speed;
-        sh.alpha -= 0.012;
-      });
-
-      shooters = shooters.filter(s => s.alpha > 0 && s.x < canvas.width + 200 && s.y < canvas.height + 200);
-
-      requestAnimationFrame(draw);
-    }
-    draw();
   }
 </script>
+
 </body>
 </html>
