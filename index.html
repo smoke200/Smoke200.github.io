@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test Page</title>
+
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: black;
+        color: white;
+        text-align: center;
+        overflow: hidden;
+    }
+
+    .page {
+        display: none;
+        height: 100vh;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+
+    .active {
+        display: flex;
+    }
+
+    button {
+        padding: 12px 25px;
+        margin: 10px;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+
+    .yes {
+        background: green;
+        color: white;
+    }
+
+    .no {
+        background: red;
+        color: white;
+    }
+
+    /* Falling hearts */
+    .heart {
+        position: fixed;
+        top: -10px;
+        font-size: 20px;
+        animation: fall linear infinite;
+    }
+
+    @keyframes fall {
+        to {
+            transform: translateY(100vh);
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<!-- Page 1 -->
+<div id="page1" class="page active">
+    <h1>Do you want to know more about me?</h1>
+    <div>
+        <button class="yes" onclick="nextPage(2)">Yes</button>
+        <button class="no">No</button>
+    </div>
+</div>
+
+<!-- Page 2 -->
+<div id="page2" class="page">
+    <h1>I don’t have much going on.<br>Just try to test my work, is it okay?</h1>
+    <div>
+        <button class="yes" onclick="nextPage(3)">Yes</button>
+        <button class="no">No</button>
+    </div>
+</div>
+
+<!-- Page 3 -->
+<div id="page3" class="page">
+    <h1>Thank you ❤️</h1>
+</div>
+
+<script>
+function nextPage(pageNumber) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page' + pageNumber).classList.add('active');
+
+    if (pageNumber === 3) {
+        startHearts();
+    }
+}
+
+function startHearts() {
+    setInterval(() => {
+        let heart = document.createElement("div");
+        heart.classList.add("heart");
+        heart.innerHTML = "❤️";
+        heart.style.left = Math.random() * 100 + "vw";
+        heart.style.animationDuration = (Math.random() * 3 + 2) + "s";
+
+        document.body.appendChild(heart);
+
+        setTimeout(() => {
+            heart.remove();
+        }, 5000);
+    }, 300);
+}
+</script>
+
+</body>
+</html>
